@@ -1,19 +1,32 @@
 #!/bin/bash
 
-# Install OpenJDK 17 JRE Headless
-sudo apt install openjdk-17-jre-headless -y
+# Update system
+sudo apt update -y
 
-# Download Jenkins GPG key
-sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
-  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+# Install required dependencies
+sudo apt install -y fontconfig openjdk-17-jdk ca-certificates curl gnupg
 
-# Add Jenkins repository to package manager sources
+# Create keyring directory
+sudo install -m 0755 -d /usr/share/keyrings
+
+# Download NEW Jenkins GPG key (2024+ official)
+curl -fsSL https://pkg.jenkins.io/public-keys/jenkins-keyring.asc \
+  | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+
+# Add Jenkins repository (correct repo format)
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
+  https://pkg.jenkins.io/debian-stable binary/ \
+  | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-# Update package manager repositories
-sudo apt-get update
+# Update package list
+sudo apt update -y
 
 # Install Jenkins
-sudo apt-get install jenkins -y
+sudo apt install -y jenkins
+
+# Enable & start Jenkins service
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+
+# Show Jenkins status
+sudo systemctl status jenkins
